@@ -6,6 +6,10 @@
  Github: https://github.com/Udayraj123
 
 """
+from copy import deepcopy
+from pathlib import Path
+from deepmerge import always_merger
+
 from src.constants.common import FIELD_TYPES
 from src.core import ImageInstanceOps
 from src.logger import logger
@@ -15,6 +19,8 @@ from src.utils.parsing import (
     open_template_with_defaults,
     parse_fields,
 )
+from src.defaults import TEMPLATE_DEFAULTS
+from src.utils.validations import validate_template_json
 
 
 class Template:
@@ -207,6 +213,74 @@ class Template:
 
     def __str__(self):
         return str(self.path)
+
+    @classmethod
+    def from_dict(cls, template_data, tuning_config, relative_dir=None):
+        """
+        Create Template instance from dictionary instead of file path
+
+        Args:
+            template_data: Dictionary with template configuration
+            tuning_config: Configuration object
+            relative_dir: Optional base directory for relative paths (defaults to current dir)
+
+        Returns:
+            Template instance
+        """
+        # Create a minimal instance without calling __init__
+        instance = cls.__new__(cls)
+
+        # Set path to None or a temporary value
+        instance.path = Path(relative_dir) if relative_dir else Path.cwd()
+        instance.image_instance_ops = ImageInstanceOps(tuning_config)
+
+        # Merge with defaults
+        from src.utils.parsing import OVERRIDE_MERGER
+        json_object = OVERRIDE_MERGER.merge(deepcopy(TEMPLATE_DEFAULTS), template_data)
+
+        # Validate
+        validate_template_json(json_object, str(instance.path))
+
+        # Extract fields
+        (
+            custom_labels_object,
+            field_blocks_object,
+            output_columns_array,
+            pre_processors_object,
+            instance.bubble_dimensions,
+            instance.global_empty_val,
+            instance.options,
+            instance.page_dimensions,
+        ) = map(
+            json_object.get,
+            [
+                "customLabels",
+                "fieldBlocks",
+                "outputColumns",
+                "preProcessors",
+                "bubbleDimensions",
+                "emptyValue",
+                "options",
+                "pageDimensions",
+            ],
+        )
+
+        instance.parse_output_columns(output_columns_array)
+        instance.setup_pre_processors(pre_processors_object, instance.path.parent if isinstance(instance.path, Path) else Path.cwd())
+        instance.setup_field_blocks(field_blocks_object)
+        instance.parse_custom_labels(custom_labels_object)
+
+        non_custom_columns, all_custom_columns = (
+            list(instance.non_custom_labels),
+            list(custom_labels_object.keys()),
+        )
+
+        if len(instance.output_columns) == 0:
+            instance.fill_output_columns(non_custom_columns, all_custom_columns)
+
+        instance.validate_template_columns(non_custom_columns, all_custom_columns)
+
+        return instance
 
 
 class FieldBlock:

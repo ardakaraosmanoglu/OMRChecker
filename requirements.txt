@@ -6,3 +6,11 @@ numpy>=1.25.0
 pandas>=2.0.2
 rich>=13.4.2
 screeninfo>=0.8.1
+
+# OpenCV for image processing (was missing!)
+opencv-python>=4.8.0
+
+# Flask API dependencies
+Flask>=3.0.0
+flask-cors>=4.0.0
+Werkzeug>=3.0.0

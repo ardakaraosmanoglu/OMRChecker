@@ -1,0 +1,217 @@
+{
+  "info": {
+    "name": "OMR Checker API",
+    "description": "API collection for testing OMR Checker endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "health"]
+        },
+        "description": "Check if the API is running"
+      }
+    },
+    {
+      "name": "Validate Template",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "template",
+              "type": "file",
+              "src": "api/defaults/template.json",
+              "description": "Template JSON file"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/omr/validate-template",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "omr", "validate-template"]
+        },
+        "description": "Validate template.json structure"
+      }
+    },
+    {
+      "name": "Process OMR - File Upload",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "",
+              "description": "OMR sheet image file"
+            },
+            {
+              "key": "template",
+              "type": "file",
+              "src": "api/defaults/template.json",
+              "description": "Template configuration"
+            },
+            {
+              "key": "config",
+              "type": "file",
+              "src": "api/defaults/config.json",
+              "description": "Processing configuration (optional)"
+            },
+            {
+              "key": "marker",
+              "type": "file",
+              "src": "inputs/omr_marker.jpg",
+              "description": "Marker image (optional)"
+            },
+            {
+              "key": "include_image",
+              "value": "false",
+              "type": "text",
+              "description": "Include processed image in response"
+            },
+            {
+              "key": "auto_align",
+              "value": "false",
+              "type": "text",
+              "description": "Enable automatic alignment"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/omr/process",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "omr", "process"]
+        },
+        "description": "Process OMR image with file upload"
+      }
+    },
+    {
+      "name": "Process OMR - Directory Path",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"directory\": \"/Users/raxana/Documents/Projects/omr-beyso/OMRChecker/inputs\",\n  \"include_image\": false,\n  \"auto_align\": false\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/omr/process",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "omr", "process"]
+        },
+        "description": "Process OMR images from directory path"
+      }
+    },
+    {
+      "name": "Process OMR - CSV Download",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "",
+              "description": "OMR sheet image file"
+            },
+            {
+              "key": "template",
+              "type": "file",
+              "src": "api/defaults/template.json"
+            },
+            {
+              "key": "format",
+              "value": "csv",
+              "type": "text",
+              "description": "Response format"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/omr/process?format=csv",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "omr", "process"],
+          "query": [
+            {
+              "key": "format",
+              "value": "csv",
+              "description": "Download as CSV"
+            }
+          ]
+        },
+        "description": "Process and download results as CSV"
+      }
+    },
+    {
+      "name": "Batch Process",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "",
+              "description": "First OMR image"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": "",
+              "description": "Second OMR image"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": "",
+              "description": "Third OMR image"
+            },
+            {
+              "key": "template",
+              "type": "file",
+              "src": "api/defaults/template.json"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/omr/batch",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "omr", "batch"]
+        },
+        "description": "Batch process multiple images"
+      }
+    }
+  ]
+}
