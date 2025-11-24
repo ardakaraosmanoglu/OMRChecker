@@ -105,10 +105,10 @@ def _process_file_upload(request, temp_files):
     elif 'template' in request.form:
         template_data = json.loads(request.form['template'])
     else:
-        # Use default template from inputs folder
+        # Use default template from api/defaults folder
         default_template_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)),
-            'inputs',
+            os.path.dirname(__file__),
+            'defaults',
             'template.json'
         )
         if os.path.exists(default_template_path):
@@ -127,10 +127,10 @@ def _process_file_upload(request, temp_files):
     elif 'config' in request.form:
         config_data = json.loads(request.form['config'])
     else:
-        # Use default config from inputs folder
+        # Use default config from api/defaults folder
         default_config_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)),
-            'inputs',
+            os.path.dirname(__file__),
+            'defaults',
             'config.json'
         )
         if os.path.exists(default_config_path):
@@ -146,13 +146,13 @@ def _process_file_upload(request, temp_files):
         marker_data = marker_file.read()
         temp_files.append(marker_data)
     else:
-        # Use default marker from inputs folder if template uses CropOnMarkers
+        # Use default marker from api/defaults folder if template uses CropOnMarkers
         if 'preProcessors' in template_data:
             for processor in template_data['preProcessors']:
                 if processor.get('name') == 'CropOnMarkers':
                     default_marker_path = os.path.join(
-                        os.path.dirname(os.path.dirname(__file__)),
-                        'inputs',
+                        os.path.dirname(__file__),
+                        'defaults',
                         'omr_marker.jpg'
                     )
                     if os.path.exists(default_marker_path):
