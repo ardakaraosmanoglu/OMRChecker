@@ -55,3 +55,6 @@ samples/
 
 # Web files (if API only deployment)
 web/
+
+# Note: Keep inputs/ directory - it contains default template.json, config.json, and omr_marker.jpg
+# that the API uses as fallbacks when files are not provided in requests
