@@ -283,6 +283,89 @@
             color: #721c24;
         }
 
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table thead tr {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .comparison-table tbody tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table tbody tr:nth-of-type(even) {
+            background-color: #f8f9fa;
+        }
+
+        .comparison-table tbody tr:hover {
+            background-color: #e9ecef;
+            cursor: pointer;
+        }
+
+        .match-status {
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .match-yes {
+            color: #27ae60;
+        }
+
+        .match-no {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .comparison-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .summary-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .summary-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .highlight-diff {
+            background-color: #fff3cd !important;
+            font-weight: bold;
+        }
+
         .info-box {
             padding: 15px;
             background: #d1ecf1;
@@ -354,6 +437,32 @@
                     </label>
                 </div>
 
+                <div class="checkbox-group" style="border-top: 2px solid #ecf0f1; padding-top: 15px; margin-top: 10px;">
+                    <label style="flex: 1;">
+                        <input type="checkbox" id="repeatMode">
+                        <strong>🔁 Repeat Processing Mode</strong> (Process same image multiple times to compare results)
+                    </label>
+                </div>
+
+                <div id="repeatOptions" style="display: none; margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #2c3e50;">
+                        Number of repetitions:
+                        <input type="number" id="repeatCount" min="2" max="100" value="3"
+                               style="width: 100px; margin-left: 10px; padding: 5px 10px; border: 2px solid #667eea; border-radius: 5px;">
+                    </label>
+                    <label style="display: block; margin-top: 10px;">
+                        <input type="checkbox" id="showOnlyDifferent" checked
+                               style="width: 18px; height: 18px; margin-right: 8px; cursor: pointer;">
+                        <span style="font-weight: 600; color: #2c3e50;">Show only different answers</span>
+                        <small style="display: block; margin-left: 26px; color: #7f8c8d; margin-top: 3px;">
+                            Hide questions where all runs have the same answer
+                        </small>
+                    </label>
+                    <small style="color: #7f8c8d; display: block; margin-top: 10px;">
+                        ℹ️ The same image will be processed multiple times. Results will be compared side-by-side to check consistency.
+                    </small>
+                </div>
+
                 <button type="submit" class="btn" id="submitBtn">
                     🚀 Process OMR Sheet
                 </button>
@@ -386,6 +495,12 @@
         const statusBadge = document.getElementById('statusBadge');
         const submitBtn = document.getElementById('submitBtn');
 
+        // Toggle repeat options visibility
+        document.getElementById('repeatMode').addEventListener('change', (e) => {
+            const repeatOptions = document.getElementById('repeatOptions');
+            repeatOptions.style.display = e.target.checked ? 'block' : 'none';
+        });
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -395,6 +510,9 @@
             const markerFile = document.getElementById('markerFile').files[0];
             const includeImage = document.getElementById('includeImage').checked;
             const autoAlign = document.getElementById('autoAlign').checked;
+            const repeatMode = document.getElementById('repeatMode').checked;
+            const repeatCount = parseInt(document.getElementById('repeatCount').value) || 3;
+            const showOnlyDifferent = document.getElementById('showOnlyDifferent').checked;
 
             if (!imageFile) {
                 alert('Please select an OMR sheet image!');
@@ -406,43 +524,16 @@
             resultsSection.classList.remove('active');
             submitBtn.disabled = true;
 
-            // Prepare form data
-            const formData = new FormData();
-            formData.append('image', imageFile);
-
-            // Only add template if user selected one (otherwise API uses default)
-            if (templateFile) {
-                formData.append('template', templateFile);
-            }
-
-            // Only add config if user selected one (otherwise API uses default)
-            if (configFile) {
-                formData.append('config', configFile);
-            }
-
-            // Only add marker if user selected one (otherwise API uses default)
-            if (markerFile) {
-                formData.append('marker', markerFile);
-            }
-
-            formData.append('include_image', includeImage.toString());
-            formData.append('auto_align', autoAlign.toString());
-
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                // Hide loading
-                loadingSection.classList.remove('active');
-                submitBtn.disabled = false;
-
-                // Show results
-                displayResults(result);
-                resultsSection.classList.add('active');
+                if (repeatMode) {
+                    // Repeat processing mode
+                    await processMultipleTimes(imageFile, templateFile, configFile, markerFile,
+                                              includeImage, autoAlign, repeatCount, showOnlyDifferent);
+                } else {
+                    // Single processing mode
+                    await processSingle(imageFile, templateFile, configFile, markerFile,
+                                       includeImage, autoAlign);
+                }
 
                 // Scroll to results
                 resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -466,6 +557,241 @@
                 resultsSection.classList.add('active');
             }
         });
+
+        async function processSingle(imageFile, templateFile, configFile, markerFile, includeImage, autoAlign) {
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            if (templateFile) formData.append('template', templateFile);
+            if (configFile) formData.append('config', configFile);
+            if (markerFile) formData.append('marker', markerFile);
+
+            formData.append('include_image', includeImage.toString());
+            formData.append('auto_align', autoAlign.toString());
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            loadingSection.classList.remove('active');
+            submitBtn.disabled = false;
+
+            displayResults(result);
+            resultsSection.classList.add('active');
+        }
+
+        async function processMultipleTimes(imageFile, templateFile, configFile, markerFile,
+                                           includeImage, autoAlign, repeatCount, showOnlyDifferent) {
+            const results = [];
+            const loadingText = document.querySelector('.loading p');
+
+            for (let i = 0; i < repeatCount; i++) {
+                loadingText.textContent = `Processing attempt ${i + 1} of ${repeatCount}...`;
+
+                const formData = new FormData();
+                formData.append('image', imageFile);
+
+                if (templateFile) formData.append('template', templateFile);
+                if (configFile) formData.append('config', configFile);
+                if (markerFile) formData.append('marker', markerFile);
+
+                formData.append('include_image', includeImage.toString());
+                formData.append('auto_align', autoAlign.toString());
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                results.push(result);
+
+                // Small delay between requests
+                if (i < repeatCount - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+
+            loadingSection.classList.remove('active');
+            submitBtn.disabled = false;
+
+            displayComparisonResults(results, showOnlyDifferent);
+            resultsSection.classList.add('active');
+        }
+
+        function displayComparisonResults(results, showOnlyDifferent = true) {
+            statusBadge.className = 'status-badge status-success';
+            statusBadge.textContent = `🔁 ${results.length} Repetitions`;
+
+            // Check if all processing succeeded
+            const allSuccess = results.every(r => r.status === 'success');
+
+            if (!allSuccess) {
+                resultContent.innerHTML = `
+                    <div class="error-message">
+                        <strong>⚠️ Some processing attempts failed</strong><br>
+                        ${results.filter(r => r.status === 'error').length} out of ${results.length} attempts failed.
+                    </div>
+                `;
+                return;
+            }
+
+            // Collect all unique questions from all results
+            const allQuestions = new Set();
+            results.forEach(result => {
+                Object.keys(result.response || {}).forEach(q => allQuestions.add(q));
+            });
+
+            // Sort questions naturally
+            const sortedQuestions = Array.from(allQuestions).sort((a, b) => {
+                const numA = parseInt(a.replace(/\D/g, '')) || 0;
+                const numB = parseInt(b.replace(/\D/g, '')) || 0;
+                return numA - numB;
+            });
+
+            // Calculate statistics
+            let matchCount = 0;
+            let mismatchCount = 0;
+            const questionStats = {};
+
+            sortedQuestions.forEach(question => {
+                const answers = results.map(r => r.response[question] || '');
+                const uniqueAnswers = new Set(answers);
+                const allMatch = uniqueAnswers.size === 1;
+
+                if (allMatch) {
+                    matchCount++;
+                } else {
+                    mismatchCount++;
+                }
+
+                questionStats[question] = {
+                    answers: answers,
+                    allMatch: allMatch
+                };
+            });
+
+            // Filter questions if showOnlyDifferent is enabled
+            const questionsToShow = showOnlyDifferent
+                ? sortedQuestions.filter(q => !questionStats[q].allMatch)
+                : sortedQuestions;
+
+            // Calculate average processing time
+            const avgTime = (results.reduce((sum, r) => sum + (r.processing_time || 0), 0) / results.length).toFixed(2);
+
+            // Build HTML
+            let html = `
+                <div class="comparison-summary">
+                    <div class="summary-item">
+                        <div class="summary-value">${results.length}</div>
+                        <div class="summary-label">Total Runs</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">${sortedQuestions.length}</div>
+                        <div class="summary-label">Total Questions</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" style="color: #27ae60;">${matchCount}</div>
+                        <div class="summary-label">✅ Consistent</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" style="color: #e74c3c;">${mismatchCount}</div>
+                        <div class="summary-label">❌ Inconsistent</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">${((matchCount / sortedQuestions.length) * 100).toFixed(1)}%</div>
+                        <div class="summary-label">Consistency Rate</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">${avgTime}s</div>
+                        <div class="summary-label">Avg. Time/Run</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">📊 Comparison Table</h3>
+                ${showOnlyDifferent ? `
+                    <div style="padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; margin-bottom: 15px; border-radius: 4px;">
+                        <strong>⚠️ Filtered View:</strong> Showing only <strong>${questionsToShow.length}</strong> questions with inconsistent results.
+                        <strong>${matchCount}</strong> questions with matching results are hidden.
+                    </div>
+                ` : ''}
+                <p style="color: #7f8c8d; margin-bottom: 15px;">
+                    <strong>Legend:</strong>
+                    <span style="color: #27ae60;">✅ = All runs match</span> |
+                    <span style="color: #e74c3c;">❌ = Inconsistent results</span> |
+                    <span style="background: #fff3cd; padding: 2px 5px;">Highlighted = Different answers</span>
+                </p>
+
+                ${questionsToShow.length === 0 ? `
+                    <div style="padding: 30px; text-align: center; background: #d4edda; border-radius: 8px; color: #155724;">
+                        <h3>🎉 Perfect Consistency!</h3>
+                        <p style="font-size: 1.1em; margin-top: 10px;">
+                            All ${sortedQuestions.length} questions have identical answers across all ${results.length} runs.
+                        </p>
+                    </div>
+                ` : `
+                    <div style="overflow-x: auto;">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    ${Array.from({length: results.length}, (_, i) => `<th>Run ${i + 1}</th>`).join('')}
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${questionsToShow.map(question => {
+                                    const stat = questionStats[question];
+                                    const rowClass = stat.allMatch ? '' : 'highlight-diff';
+
+                                    return `
+                                        <tr class="${rowClass}">
+                                            <td><strong>${question}</strong></td>
+                                            ${stat.answers.map(answer => {
+                                                const displayAnswer = answer && answer.trim() !== '' ? answer : '-';
+                                                return `<td>${displayAnswer}</td>`;
+                                            }).join('')}
+                                            <td class="match-status ${stat.allMatch ? 'match-yes' : 'match-no'}">
+                                                ${stat.allMatch ? '✅' : '❌'}
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `}
+            `;
+
+            // Show metadata from first successful result
+            const firstResult = results[0];
+            const meta = firstResult.metadata || {};
+
+            html += `
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #2c3e50;">ℹ️ Processing Details</h3>
+                <div class="metadata">
+                    <div class="metadata-item">
+                        <div class="metadata-label">File Name</div>
+                        <div class="metadata-value">${firstResult.file_name || 'N/A'}</div>
+                    </div>
+                    <div class="metadata-item">
+                        <div class="metadata-label">Image Dimensions</div>
+                        <div class="metadata-value">${meta.image_dimensions ? meta.image_dimensions.join(' × ') : 'N/A'}</div>
+                    </div>
+                    <div class="metadata-item">
+                        <div class="metadata-label">Multi-marked (Run 1)</div>
+                        <div class="metadata-value" style="color: ${meta.multi_marked ? '#e74c3c' : '#27ae60'}">
+                            ${meta.multi_marked ? 'Yes ⚠️' : 'No ✓'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultContent.innerHTML = html;
+        }
 
         function displayResults(result) {
             if (result.status === 'success') {

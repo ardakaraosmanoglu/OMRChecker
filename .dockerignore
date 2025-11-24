@@ -1,0 +1,57 @@
+# Git files
+.git
+.gitignore
+.github
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs/
+*.md
+!API_README.md
+!API_USAGE.md
+
+# Test files
+test_*.py
+pytest.ini
+.pre-commit-config.yaml
+.pylintrc
+
+# Development dependencies
+requirements.dev.txt
+
+# Outputs (will be generated at runtime)
+outputs/*
+
+# Temporary uploads (will be created at runtime)
+api/temp_uploads/*
+
+# Sample files
+samples/
+
+# Web files (if API only deployment)
+web/

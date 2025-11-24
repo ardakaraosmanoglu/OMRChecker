@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  omr-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: omr-checker-api
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount inputs directory for template and configuration
+      - ./inputs:/app/inputs:ro
+      # Mount outputs directory to persist results
+      - ./outputs:/app/outputs
+      # Mount temp_uploads for processing
+      - ./api/temp_uploads:/app/api/temp_uploads
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8080/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
