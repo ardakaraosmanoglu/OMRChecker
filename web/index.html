@@ -169,6 +169,75 @@
             }
         }
 
+        .processing-timer {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-radius: 12px;
+            border: 2px solid #667eea;
+        }
+
+        .timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(102, 126, 234, 0.3);
+        }
+
+        .timer-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .processing-time-card {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.3);
+            margin-bottom: 25px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .processing-time-card .time-value {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: white;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 2px;
+        }
+
+        .processing-time-card .time-label {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.2em;
+            margin-top: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .processing-time-card .time-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
         .results {
             display: none;
         }
@@ -483,8 +552,12 @@
 
         <div class="card loading" id="loadingSection">
             <div class="spinner"></div>
-            <p style="color: #667eea; font-weight: 600;">Processing your OMR sheet...</p>
+            <p style="color: #667eea; font-weight: 600;" id="loadingMessage">Processing your OMR sheet...</p>
             <p style="color: #7f8c8d; margin-top: 10px;">This may take a few seconds</p>
+            <div class="processing-timer">
+                <div class="timer-display" id="timerDisplay">0.00s</div>
+                <div class="timer-label">⏱️ Processing Time</div>
+            </div>
         </div>
 
         <div class="card results" id="resultsSection">
@@ -506,6 +579,27 @@
         const resultContent = document.getElementById('resultContent');
         const statusBadge = document.getElementById('statusBadge');
         const submitBtn = document.getElementById('submitBtn');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const loadingMessage = document.getElementById('loadingMessage');
+
+        let timerInterval = null;
+        let startTime = null;
+
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+                timerDisplay.textContent = `${elapsed}s`;
+            }, 10); // Update every 10ms for smooth animation
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            return startTime ? ((Date.now() - startTime) / 1000).toFixed(2) : 0;
+        }
 
         // Toggle repeat options visibility
         document.getElementById('repeatMode').addEventListener('change', (e) => {
@@ -531,10 +625,11 @@
                 return;
             }
 
-            // Show loading, hide results
+            // Show loading, hide results, start timer
             loadingSection.classList.add('active');
             resultsSection.classList.remove('active');
             submitBtn.disabled = true;
+            startTimer();
 
             try {
                 if (repeatMode) {
@@ -551,6 +646,7 @@
                 resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             } catch (error) {
+                stopTimer();
                 loadingSection.classList.remove('active');
                 submitBtn.disabled = false;
 
@@ -588,20 +684,20 @@
 
             const result = await response.json();
 
+            const elapsedTime = stopTimer();
             loadingSection.classList.remove('active');
             submitBtn.disabled = false;
 
-            displayResults(result);
+            displayResults(result, elapsedTime);
             resultsSection.classList.add('active');
         }
 
         async function processMultipleTimes(imageFile, templateFile, configFile, markerFile,
             includeImage, autoAlign, repeatCount, showOnlyDifferent) {
             const results = [];
-            const loadingText = document.querySelector('.loading p');
 
             for (let i = 0; i < repeatCount; i++) {
-                loadingText.textContent = `Processing attempt ${i + 1} of ${repeatCount}...`;
+                loadingMessage.textContent = `Processing attempt ${i + 1} of ${repeatCount}...`;
 
                 const formData = new FormData();
                 formData.append('image', imageFile);
@@ -627,14 +723,15 @@
                 }
             }
 
+            const elapsedTime = stopTimer();
             loadingSection.classList.remove('active');
             submitBtn.disabled = false;
 
-            displayComparisonResults(results, showOnlyDifferent);
+            displayComparisonResults(results, showOnlyDifferent, elapsedTime);
             resultsSection.classList.add('active');
         }
 
-        function displayComparisonResults(results, showOnlyDifferent = true) {
+        function displayComparisonResults(results, showOnlyDifferent = true, elapsedTime = 0) {
             statusBadge.className = 'status-badge status-success';
             statusBadge.textContent = `🔁 ${results.length} Repetitions`;
 
@@ -694,8 +791,14 @@
             // Calculate average processing time
             const avgTime = (results.reduce((sum, r) => sum + (r.processing_time || 0), 0) / results.length).toFixed(2);
 
-            // Build HTML
+            // Build HTML with processing time card
             let html = `
+                <div class="processing-time-card">
+                    <div class="time-icon">⏱️</div>
+                    <div class="time-value">${elapsedTime}s</div>
+                    <div class="time-label">Total Processing Time</div>
+                </div>
+
                 <div class="comparison-summary">
                     <div class="summary-item">
                         <div class="summary-value">${results.length}</div>
@@ -805,7 +908,7 @@
             resultContent.innerHTML = html;
         }
 
-        function displayResults(result) {
+        function displayResults(result, elapsedTime = 0) {
             if (result.status === 'success') {
                 statusBadge.className = 'status-badge status-success';
                 statusBadge.textContent = '✓ Success';
@@ -815,6 +918,12 @@
                 const answersCount = Object.keys(response).length;
 
                 let html = `
+                    <div class="processing-time-card">
+                        <div class="time-icon">⏱️</div>
+                        <div class="time-value">${elapsedTime}s</div>
+                        <div class="time-label">Processing Time</div>
+                    </div>
+
                     <div class="metadata">
                         <div class="metadata-item">
                             <div class="metadata-label">File Name</div>
@@ -825,7 +934,7 @@
                             <div class="metadata-value">${answersCount}</div>
                         </div>
                         <div class="metadata-item">
-                            <div class="metadata-label">Processing Time</div>
+                            <div class="metadata-label">API Processing Time</div>
                             <div class="metadata-value">${result.processing_time || 'N/A'}s</div>
                         </div>
                         <div class="metadata-item">
