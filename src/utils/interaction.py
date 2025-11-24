@@ -6,7 +6,15 @@ from screeninfo import get_monitors
 from src.logger import logger
 from src.utils.image import ImageUtils
 
-monitor_window = get_monitors()[0]
+# Handle headless environments (Docker, CI/CD) where no display is available
+try:
+    monitor_window = get_monitors()[0]
+except Exception:
+    # Create a mock monitor object for headless environments
+    from collections import namedtuple
+    Monitor = namedtuple('Monitor', ['width', 'height'])
+    monitor_window = Monitor(width=1920, height=1080)
+    logger.warning("No display detected (headless mode). Using default dimensions: 1920x1080")
 
 
 @dataclass
