@@ -7,6 +7,17 @@
     22,
     22
   ],
+  "customLabels": {
+    "PhoneNumber": [
+      "phone1..10"
+    ],
+    "KurumNo": [
+      "kurumNo"
+    ],
+    "ExamNo": [
+      "examNo"
+    ]
+  },
   "preProcessors": [
     {
       "name": "CropOnMarkers",
@@ -17,6 +28,44 @@
     }
   ],
   "fieldBlocks": {
+    "PhoneNumber": {
+      "fieldType": "QTYPE_INT",
+      "fieldLabels": [
+        "phone1..10"
+      ],
+      "bubblesGap": 25.7,
+      "labelsGap": 45.5,
+      "origin": [
+        42,
+        137
+      ]
+    },
+    "KurumNo": {
+      "bubbleValues": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+      "direction": "horizontal",
+      "fieldLabels": [
+        "kurumNo"
+      ],
+      "bubblesGap": 45.5,
+      "labelsGap": 10,
+      "origin": [
+        755,
+        285
+      ]
+    },
+    "ExamNo": {
+      "bubbleValues": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+      "direction": "horizontal",
+      "fieldLabels": [
+        "examNo"
+      ],
+      "bubblesGap": 45.5,
+      "labelsGap": 0,
+      "origin": [
+        755,
+        200
+      ]
+    },
     "MCQBlock1": {
       "fieldType": "QTYPE_MCQ5",
       "origin": [
