@@ -4,8 +4,8 @@
     1754
   ],
   "bubbleDimensions": [
-    18,
-    18
+    22,
+    22
   ],
   "preProcessors": [
     {
@@ -20,50 +20,50 @@
     "MCQBlock1": {
       "fieldType": "QTYPE_MCQ5",
       "origin": [
-        100,
-        465
+        90,
+        440
       ],
       "fieldLabels": [
         "q1..40"
       ],
-      "bubblesGap": 47,
-      "labelsGap": 31.1
+      "bubblesGap": 49,
+      "labelsGap": 31
     },
     "MCQBlock2": {
       "fieldType": "QTYPE_MCQ5",
       "origin": [
-        400,
-        465
+        395,
+        440
       ],
       "fieldLabels": [
         "q41..80"
       ],
-      "bubblesGap": 47,
-      "labelsGap": 31.1
+      "bubblesGap": 48,
+      "labelsGap": 30.9
     },
     "MCQBlock3": {
       "fieldType": "QTYPE_MCQ5",
       "origin": [
         690,
-        465
+        440
       ],
       "fieldLabels": [
         "q81..120"
       ],
-      "bubblesGap": 47,
-      "labelsGap": 31.1
+      "bubblesGap": 49,
+      "labelsGap": 30.9
     },
     "MCQBlock4": {
       "fieldType": "QTYPE_MCQ5",
       "origin": [
-        980,
-        465
+        990,
+        440
       ],
       "fieldLabels": [
         "q121..160"
       ],
-      "bubblesGap": 47,
-      "labelsGap": 31.1
+      "bubblesGap": 48,
+      "labelsGap": 30.9
     }
   }
 }
