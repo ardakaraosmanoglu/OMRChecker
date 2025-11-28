@@ -106,8 +106,11 @@ def validate_template_json(template_data, return_details=False):
         # Check field blocks
         if 'fieldBlocks' in template_data:
             for block_name, block_config in template_data['fieldBlocks'].items():
-                if 'fieldType' not in block_config:
-                    errors.append(f"Block '{block_name}' missing 'fieldType'")
+                # Either fieldType OR (bubbleValues + direction) is required
+                has_field_type = 'fieldType' in block_config
+                has_custom_values = 'bubbleValues' in block_config and 'direction' in block_config
+                if not has_field_type and not has_custom_values:
+                    errors.append(f"Block '{block_name}' missing 'fieldType' or 'bubbleValues'+'direction'")
 
                 if 'origin' not in block_config:
                     errors.append(f"Block '{block_name}' missing 'origin'")
