@@ -75,6 +75,14 @@ def process_omr_image(
         temp_path = Path(file_name)
         processed_image = image_ops.apply_preprocessors(temp_path, image, template)
 
+        # Check if preprocessing succeeded (CropOnMarkers may return None if markers not found)
+        if processed_image is None:
+            return {
+                'status': 'error',
+                'file_name': file_name,
+                'message': 'Preprocessing failed - markers not found in image. Make sure the OMR sheet has visible corner markers.'
+            }
+
         # Read OMR response
         omr_response, final_marked, multi_marked, multi_roll = image_ops.read_omr_response(
             template,
@@ -396,6 +404,16 @@ def process_dir_for_api(
             # Apply preprocessors
             temp_path = Path(file_name)
             processed_image = image_ops.apply_preprocessors(temp_path, image, template)
+
+            # Check if preprocessing succeeded
+            if processed_image is None:
+                results.append({
+                    'status': 'error',
+                    'file_name': file_name,
+                    'message': 'Preprocessing failed - markers not found in image'
+                })
+                failed += 1
+                continue
 
             # Read OMR response
             omr_response, final_marked, multi_marked, multi_roll = image_ops.read_omr_response(

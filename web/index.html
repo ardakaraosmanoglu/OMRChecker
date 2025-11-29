@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMR Checker - Web Interface</title>
+    <title>OMR Okuyucu - Web Arayüzü</title>
     <style>
         * {
             margin: 0;
@@ -460,92 +460,89 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📝 OMR Checker</h1>
-            <p>Upload your OMR sheet and get instant results</p>
+            <h1>📝 OMR Okuyucu</h1>
+            <p>OMR kağıdınızı yükleyin ve anında sonuç alın</p>
         </div>
 
         <div class="card">
             <div class="info-box">
-                <strong>ℹ️ Instructions:</strong>
-                Simply upload your OMR sheet image! Template, config, and marker files will be automatically loaded from
-                the server's default settings. You can optionally override them by uploading your own files.
+                <strong>ℹ️ Talimatlar:</strong>
+                OMR kağıdı görüntünüzü yükleyin! Şablon, yapılandırma ve işaretçi dosyaları sunucunun varsayılan
+                ayarlarından otomatik olarak yüklenecektir. İsterseniz kendi dosyalarınızı yükleyebilirsiniz.
             </div>
 
             <form id="uploadForm" class="upload-section">
                 <div class="file-input-group">
                     <label>
-                        <span class="required">*</span> OMR Sheet Image (JPG/PNG)
+                        <span class="required">*</span> OMR Kağıdı Görüntüsü (JPG/PNG)
                     </label>
                     <input type="file" id="imageFile" accept="image/jpeg,image/jpg,image/png" required>
                 </div>
 
                 <div class="file-input-group">
                     <label>
-                        Template File <span class="optional">(optional - uses default from server if not
-                            provided)</span>
+                        Şablon Dosyası <span class="optional">(isteğe bağlı - sunucudan varsayılan kullanılır)</span>
                     </label>
                     <input type="file" id="templateFile" accept="application/json,.json">
-                    <small style="color: #7f8c8d; font-size: 0.85em;">Default: inputs/template.json on server</small>
+                    <small style="color: #7f8c8d; font-size: 0.85em;">Varsayılan: sunucuda inputs/template.json</small>
                 </div>
 
                 <div class="file-input-group">
                     <label>
-                        Config File <span class="optional">(optional - uses default from server if not provided)</span>
+                        Yapılandırma Dosyası <span class="optional">(isteğe bağlı - sunucudan varsayılan kullanılır)</span>
                     </label>
                     <input type="file" id="configFile" accept="application/json,.json">
-                    <small style="color: #7f8c8d; font-size: 0.85em;">Default: inputs/config.json on server</small>
+                    <small style="color: #7f8c8d; font-size: 0.85em;">Varsayılan: sunucuda inputs/config.json</small>
                 </div>
 
                 <div class="file-input-group">
                     <label>
-                        Marker Image <span class="optional">(optional - uses default from server if not provided)</span>
+                        İşaretçi Görüntüsü <span class="optional">(isteğe bağlı - sunucudan varsayılan kullanılır)</span>
                     </label>
                     <input type="file" id="markerFile" accept="image/jpeg,image/jpg,image/png">
-                    <small style="color: #7f8c8d; font-size: 0.85em;">Default: inputs/omr_marker.jpg on server</small>
+                    <small style="color: #7f8c8d; font-size: 0.85em;">Varsayılan: sunucuda inputs/omr_marker.jpg</small>
                 </div>
 
                 <div class="checkbox-group">
                     <label>
                         <input type="checkbox" id="includeImage">
-                        Include processed image in response
+                        İşlenmiş görüntüyü yanıta dahil et
                     </label>
                     <label>
                         <input type="checkbox" id="autoAlign">
-                        Enable auto-alignment
+                        Otomatik hizalamayı etkinleştir
                     </label>
                 </div>
 
                 <div class="checkbox-group" style="border-top: 2px solid #ecf0f1; padding-top: 15px; margin-top: 10px;">
                     <label style="flex: 1;">
                         <input type="checkbox" id="repeatMode">
-                        <strong>🔁 Repeat Processing Mode</strong> (Process same image multiple times to compare
-                        results)
+                        <strong>🔁 Tekrarlı İşleme Modu</strong> (Aynı görüntüyü birden fazla kez işleyerek sonuçları karşılaştır)
                     </label>
                 </div>
 
                 <div id="repeatOptions"
                     style="display: none; margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
                     <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #2c3e50;">
-                        Number of repetitions:
+                        Tekrar sayısı:
                         <input type="number" id="repeatCount" min="2" max="100" value="3"
                             style="width: 100px; margin-left: 10px; padding: 5px 10px; border: 2px solid #667eea; border-radius: 5px;">
                     </label>
                     <label style="display: block; margin-top: 10px;">
                         <input type="checkbox" id="showOnlyDifferent" checked
                             style="width: 18px; height: 18px; margin-right: 8px; cursor: pointer;">
-                        <span style="font-weight: 600; color: #2c3e50;">Show only different answers</span>
+                        <span style="font-weight: 600; color: #2c3e50;">Sadece farklı cevapları göster</span>
                         <small style="display: block; margin-left: 26px; color: #7f8c8d; margin-top: 3px;">
-                            Hide questions where all runs have the same answer
+                            Tüm çalıştırmalarda aynı cevaba sahip soruları gizle
                         </small>
                     </label>
                     <small style="color: #7f8c8d; display: block; margin-top: 10px;">
-                        ℹ️ The same image will be processed multiple times. Results will be compared side-by-side to
-                        check consistency.
+                        ℹ️ Aynı görüntü birden fazla kez işlenecek. Sonuçlar tutarlılığı kontrol etmek için yan yana karşılaştırılacak.
                     </small>
                 </div>
 
                 <button type="submit" class="btn" id="submitBtn">
-                    🚀 Process OMR Sheet
+                    🚀 OMR Kağıdını İşle
                 </button>
             </form>
         </div>
@@ -733,7 +730,7 @@
 
         function displayComparisonResults(results, showOnlyDifferent = true, elapsedTime = 0) {
             statusBadge.className = 'status-badge status-success';
-            statusBadge.textContent = `🔁 ${results.length} Repetitions`;
+            statusBadge.textContent = `🔁 ${results.length} Tekrar`;
 
             // Check if all processing succeeded
             const allSuccess = results.every(r => r.status === 'success');
@@ -741,17 +738,34 @@
             if (!allSuccess) {
                 resultContent.innerHTML = `
                     <div class="error-message">
-                        <strong>⚠️ Some processing attempts failed</strong><br>
-                        ${results.filter(r => r.status === 'error').length} out of ${results.length} attempts failed.
+                        <strong>⚠️ Bazı işlem denemeleri başarısız oldu</strong><br>
+                        ${results.filter(r => r.status === 'error').length} / ${results.length} deneme başarısız.
                     </div>
                 `;
                 return;
             }
 
-            // Collect all unique questions from all results
+            // Identification fields to display separately
+            const idFields = ['PhoneNumber', 'KurumNo', 'ExamNo', 'kurumNo', 'examNo'];
+            const idFieldLabels = {
+                'PhoneNumber': '📱 Telefon Numarası',
+                'KurumNo': '🏢 Kurum Kodu',
+                'ExamNo': '📝 Sınav No',
+                'kurumNo': '🏢 Kurum Kodu',
+                'examNo': '📝 Sınav No'
+            };
+
+            // Collect all unique questions from all results (excluding ID fields for main table)
             const allQuestions = new Set();
+            const allIdFields = new Set();
             results.forEach(result => {
-                Object.keys(result.response || {}).forEach(q => allQuestions.add(q));
+                Object.keys(result.response || {}).forEach(q => {
+                    if (idFields.includes(q)) {
+                        allIdFields.add(q);
+                    } else {
+                        allQuestions.add(q);
+                    }
+                });
             });
 
             // Sort questions naturally
@@ -796,55 +810,81 @@
                 <div class="processing-time-card">
                     <div class="time-icon">⏱️</div>
                     <div class="time-value">${elapsedTime}s</div>
-                    <div class="time-label">Total Processing Time</div>
+                    <div class="time-label">Toplam İşlem Süresi</div>
                 </div>
-
+            `;
+            
+            // Display identification fields comparison if any exist
+            if (allIdFields.size > 0) {
+                html += `<h3 style="margin-bottom: 15px; color: #2c3e50;">🆔 Kimlik Bilgileri Karşılaştırması</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 25px;">`;
+                
+                Array.from(allIdFields).forEach(field => {
+                    const label = idFieldLabels[field] || field;
+                    const values = results.map(r => r.response[field] || '-');
+                    const uniqueValues = new Set(values);
+                    const isConsistent = uniqueValues.size === 1;
+                    
+                    html += `
+                        <div style="padding: 15px; background: ${isConsistent ? 'linear-gradient(135deg, #27ae6015, #2ecc7115)' : 'linear-gradient(135deg, #e74c3c15, #c0392b15)'}; border-radius: 12px; border: 2px solid ${isConsistent ? '#27ae60' : '#e74c3c'};">
+                            <div style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 8px;">${label} ${isConsistent ? '✅' : '❌'}</div>
+                            <div style="font-size: 1.4em; font-weight: bold; color: #2c3e50; font-family: 'Courier New', monospace; letter-spacing: 1px;">
+                                ${isConsistent ? values[0] : values.join(' / ')}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += `
                 <div class="comparison-summary">
                     <div class="summary-item">
                         <div class="summary-value">${results.length}</div>
-                        <div class="summary-label">Total Runs</div>
+                        <div class="summary-label">Toplam Çalıştırma</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value">${sortedQuestions.length}</div>
-                        <div class="summary-label">Total Questions</div>
+                        <div class="summary-label">Toplam Soru</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value" style="color: #27ae60;">${matchCount}</div>
-                        <div class="summary-label">✅ Consistent</div>
+                        <div class="summary-label">✅ Tutarlı</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value" style="color: #e74c3c;">${mismatchCount}</div>
-                        <div class="summary-label">❌ Inconsistent</div>
+                        <div class="summary-label">❌ Tutarsız</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value">${((matchCount / sortedQuestions.length) * 100).toFixed(1)}%</div>
-                        <div class="summary-label">Consistency Rate</div>
+                        <div class="summary-label">Tutarlılık Oranı</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value">${avgTime}s</div>
-                        <div class="summary-label">Avg. Time/Run</div>
+                        <div class="summary-label">Ort. Süre/Çalıştırma</div>
                     </div>
                 </div>
 
-                <h3 style="margin-bottom: 15px; color: #2c3e50;">📊 Comparison Table</h3>
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">📊 Karşılaştırma Tablosu</h3>
                 ${showOnlyDifferent ? `
                     <div style="padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; margin-bottom: 15px; border-radius: 4px;">
-                        <strong>⚠️ Filtered View:</strong> Showing only <strong>${questionsToShow.length}</strong> questions with inconsistent results.
-                        <strong>${matchCount}</strong> questions with matching results are hidden.
+                        <strong>⚠️ Filtrelenmiş Görünüm:</strong> Sadece tutarsız sonuçları olan <strong>${questionsToShow.length}</strong> soru gösteriliyor.
+                        <strong>${matchCount}</strong> eşleşen soru gizlendi.
                     </div>
                 ` : ''}
                 <p style="color: #7f8c8d; margin-bottom: 15px;">
-                    <strong>Legend:</strong>
-                    <span style="color: #27ae60;">✅ = All runs match</span> |
-                    <span style="color: #e74c3c;">❌ = Inconsistent results</span> |
-                    <span style="background: #fff3cd; padding: 2px 5px;">Highlighted = Different answers</span>
+                    <strong>Açıklama:</strong>
+                    <span style="color: #27ae60;">✅ = Tüm çalıştırmalar eşleşiyor</span> |
+                    <span style="color: #e74c3c;">❌ = Tutarsız sonuçlar</span> |
+                    <span style="background: #fff3cd; padding: 2px 5px;">Vurgulanan = Farklı cevaplar</span>
                 </p>
 
                 ${questionsToShow.length === 0 ? `
                     <div style="padding: 30px; text-align: center; background: #d4edda; border-radius: 8px; color: #155724;">
-                        <h3>🎉 Perfect Consistency!</h3>
+                        <h3>🎉 Mükemmel Tutarlılık!</h3>
                         <p style="font-size: 1.1em; margin-top: 10px;">
-                            All ${sortedQuestions.length} questions have identical answers across all ${results.length} runs.
+                            Tüm ${sortedQuestions.length} soru, ${results.length} çalıştırmada aynı cevaplara sahip.
                         </p>
                     </div>
                 ` : `
@@ -852,9 +892,9 @@
                         <table class="comparison-table">
                             <thead>
                                 <tr>
-                                    <th>Question</th>
-                                    ${Array.from({ length: results.length }, (_, i) => `<th>Run ${i + 1}</th>`).join('')}
-                                    <th>Status</th>
+                                    <th>Soru</th>
+                                    ${Array.from({ length: results.length }, (_, i) => `<th>Çalıştırma ${i + 1}</th>`).join('')}
+                                    <th>Durum</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -886,20 +926,20 @@
             const meta = firstResult.metadata || {};
 
             html += `
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #2c3e50;">ℹ️ Processing Details</h3>
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #2c3e50;">ℹ️ İşlem Detayları</h3>
                 <div class="metadata">
                     <div class="metadata-item">
-                        <div class="metadata-label">File Name</div>
+                        <div class="metadata-label">Dosya Adı</div>
                         <div class="metadata-value">${firstResult.file_name || 'N/A'}</div>
                     </div>
                     <div class="metadata-item">
-                        <div class="metadata-label">Image Dimensions</div>
+                        <div class="metadata-label">Görüntü Boyutları</div>
                         <div class="metadata-value">${meta.image_dimensions ? meta.image_dimensions.join(' × ') : 'N/A'}</div>
                     </div>
                     <div class="metadata-item">
-                        <div class="metadata-label">Multi-marked (Run 1)</div>
+                        <div class="metadata-label">Çoklu İşaretleme (Çalıştırma 1)</div>
                         <div class="metadata-value" style="color: ${meta.multi_marked ? '#e74c3c' : '#27ae60'}">
-                            ${meta.multi_marked ? 'Yes ⚠️' : 'No ✓'}
+                            ${meta.multi_marked ? 'Evet ⚠️' : 'Hayır ✓'}
                         </div>
                     </div>
                 </div>
@@ -911,46 +951,93 @@
         function displayResults(result, elapsedTime = 0) {
             if (result.status === 'success') {
                 statusBadge.className = 'status-badge status-success';
-                statusBadge.textContent = '✓ Success';
+                statusBadge.textContent = '✓ Başarılı';
 
                 const metadata = result.metadata || {};
                 const response = result.response || {};
-                const answersCount = Object.keys(response).length;
+                
+                // Separate identification fields from question answers
+                const idFields = ['PhoneNumber', 'KurumNo', 'ExamNo', 'kurumNo', 'examNo'];
+                const idFieldLabels = {
+                    'PhoneNumber': '📱 Telefon Numarası',
+                    'KurumNo': '🏢 Kurum Kodu',
+                    'ExamNo': '📝 Sınav No',
+                    'kurumNo': '🏢 Kurum Kodu',
+                    'examNo': '📝 Sınav No'
+                };
+                
+                const identificationData = {};
+                const questionData = {};
+                
+                Object.keys(response).forEach(key => {
+                    if (idFields.includes(key)) {
+                        identificationData[key] = response[key];
+                    } else {
+                        questionData[key] = response[key];
+                    }
+                });
+                
+                const answersCount = Object.keys(questionData).length;
 
                 let html = `
                     <div class="processing-time-card">
                         <div class="time-icon">⏱️</div>
                         <div class="time-value">${elapsedTime}s</div>
-                        <div class="time-label">Processing Time</div>
+                        <div class="time-label">İşlem Süresi</div>
                     </div>
 
                     <div class="metadata">
                         <div class="metadata-item">
-                            <div class="metadata-label">File Name</div>
+                            <div class="metadata-label">Dosya Adı</div>
                             <div class="metadata-value">${result.file_name || 'N/A'}</div>
                         </div>
                         <div class="metadata-item">
-                            <div class="metadata-label">Total Questions</div>
+                            <div class="metadata-label">Toplam Soru</div>
                             <div class="metadata-value">${answersCount}</div>
                         </div>
                         <div class="metadata-item">
-                            <div class="metadata-label">API Processing Time</div>
+                            <div class="metadata-label">API İşlem Süresi</div>
                             <div class="metadata-value">${result.processing_time || 'N/A'}s</div>
                         </div>
                         <div class="metadata-item">
-                            <div class="metadata-label">Multi-marked</div>
+                            <div class="metadata-label">Çoklu İşaretleme</div>
                             <div class="metadata-value" style="color: ${metadata.multi_marked ? '#e74c3c' : '#27ae60'}">
-                                ${metadata.multi_marked ? 'Yes ⚠️' : 'No ✓'}
+                                ${metadata.multi_marked ? 'Evet ⚠️' : 'Hayır ✓'}
                             </div>
                         </div>
                     </div>
+                `;
+                
+                // Display identification fields if any exist
+                if (Object.keys(identificationData).length > 0) {
+                    html += `
+                        <h3 style="margin-bottom: 15px; color: #2c3e50;">🆔 Kimlik Bilgileri</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                    `;
+                    
+                    for (const [key, value] of Object.entries(identificationData)) {
+                        const label = idFieldLabels[key] || key;
+                        const isEmpty = !value || value.trim() === '';
+                        html += `
+                            <div style="padding: 20px; background: linear-gradient(135deg, #667eea15, #764ba215); border-radius: 12px; border: 2px solid #667eea; text-align: center;">
+                                <div style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 8px;">${label}</div>
+                                <div style="font-size: 1.8em; font-weight: bold; color: ${isEmpty ? '#e74c3c' : '#2c3e50'}; font-family: 'Courier New', monospace; letter-spacing: 2px;">
+                                    ${isEmpty ? '-' : value}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    html += '</div>';
+                }
 
-                    <h3 style="margin-bottom: 15px; color: #2c3e50;">📋 Detected Answers</h3>
+                html += `
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">📋 Cevaplar</h3>
                     <div class="answers-grid">
                 `;
 
                 // Sort answers naturally (q1, q2, q3, ... q10, q11, ... q100)
-                const sortedQuestions = Object.keys(response).sort((a, b) => {
+                const sortedQuestions = Object.keys(questionData).sort((a, b) => {
                     // Extract numbers from question strings
                     const numA = parseInt(a.replace(/\D/g, '')) || 0;
                     const numB = parseInt(b.replace(/\D/g, '')) || 0;
@@ -959,7 +1046,7 @@
 
                 // Display answers in sorted order
                 for (const question of sortedQuestions) {
-                    const answer = response[question];
+                    const answer = questionData[question];
                     const isEmpty = !answer || answer.trim() === '';
                     html += `
                         <div class="answer-item">
